@@ -9,6 +9,7 @@ using Xamarin.Forms.Platform.UWP;
 using Windows.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
+using Windows.Devices.Input;
 
 [assembly: ResolutionGroupName(nameof(TouchEffect))]
 [assembly: ExportEffect(typeof(PlatformTouchEff), nameof(TouchEff))]
@@ -179,6 +180,12 @@ namespace TouchEffect.UWP
         {
             if (_effect?.IsDisabled ?? true) return;
 
+            var deviceType = e.Pointer.PointerDeviceType;
+            var pointerPoint = e.GetCurrentPoint(Container);
+            var pointerProperties = e.GetCurrentPoint(Container).Properties;
+
+            if (deviceType == PointerDeviceType.Mouse && pointerProperties.IsRightButtonPressed) return;
+
             _pressed = true;
             Container.CapturePointer(e.Pointer);
             _effect?.HandleUserInteraction(UserInteractionState.Running);
@@ -191,15 +198,15 @@ namespace TouchEffect.UWP
         {
             if ((_effect?.NativeAnimation ?? false) && storyboard != null)
             {
-                try
-                {
-                    storyboard.Stop();
-                    storyboard.Begin();
-                }
-                catch
-                {
-                    // Suppress
-                }
+               try
+               {
+                   storyboard.Stop();
+                   storyboard.Begin();
+               }
+               catch
+               {
+                   // Suppress
+               }
             }
         }
     }
